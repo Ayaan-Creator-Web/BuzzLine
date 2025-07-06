@@ -1,17 +1,29 @@
 const user = JSON.parse(localStorage.getItem('discourseUser'));
+const API_BASE_URL = 'https://discourse-lasp.onrender.com';
 
-function start() {
+async function start() {
     document.title = 'Discourse';
-    if (localStorage.getItem('discussions')) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/discussions`);
+        const discussions = await response.json();
+
+        if (discussions.length > 0) {
+            document.body.innerHTML = `
+                <button onclick="newDiscussion()">Add a discussion</button>
+                <h1>All discussions</h1>
+                <div class="discussionContainer"></div>
+            `;
+            data(discussions);
+        } else {
+            document.body.innerHTML = `
+                <h1>No discussions yet</h1>
+                <button onclick="newDiscussion()">Add a discussion</button>
+            `;
+        }
+    } catch (error) {
+        console.error('Error fetching discussions:', error);
         document.body.innerHTML = `
-            <button onclick="newDiscussion()">Add a discussion</button>
-            <h1>Here are all the lastest discussions${user ? ', ' + user.username : 'Guest'}</h1>
-            <div class="discussionContainer"></div>
-        `;
-        data();
-    } else {
-        document.body.innerHTML = `
-            <h1>No discussions yet</h1>
+            <h1>Failed to load discussions. Please try again later.</h1>
             <button onclick="newDiscussion()">Add a discussion</button>
         `;
     }
@@ -19,30 +31,7 @@ function start() {
 
 start();
 
-// Convert old string comments to objects with author "Unknown"
-function migrateComments(discussions) {
-    return discussions.map(discussion => {
-        discussion.comments = discussion.comments.map(c =>
-            typeof c === "string" ? { text: c, author: "Unknown" } : c
-        );
-        return discussion;
-    });
-}
-
-// Only set discussions if not already present (to avoid overwriting user comments)
-if (!localStorage.getItem('discussions')) {
-    localStorage.setItem('discussions', JSON.stringify(discussions));
-} else {
-    // Migrate old comments if needed
-    let stored = JSON.parse(localStorage.getItem('discussions'));
-    stored = migrateComments(stored);
-    localStorage.setItem('discussions', JSON.stringify(stored));
-}
-
-function data() {
-    let discussions = JSON.parse(localStorage.getItem('discussions'));
-    discussions = migrateComments(discussions);
-
+function data(discussions) {
     discussions.forEach((discussion) => {
         const discussionDiv = document.createElement('div');
         discussionDiv.className = 'discussion';
@@ -58,13 +47,13 @@ function data() {
 
         const heading = escapeHtmlAttribute(discussion.heading);
         const subheading = escapeHtmlAttribute(discussion.subheading);
-        const user = escapeHtmlAttribute(discussion.user);
-        const comments = escapeHtmlAttribute(JSON.stringify(discussion.comments));
+        const discussionUser = escapeHtmlAttribute(discussion.user);
         const date = escapeHtmlAttribute(discussion.date);
         const id = discussion.id;
 
         discussionDiv.innerHTML = `
-            <h2 style="cursor: pointer;" onclick="showDiscussionById(${id})">${discussion.heading}</h2>
+            <h2 style="cursor: pointer;" onclick="showDiscussionById(${id})">${heading}</h2>
+            <p>Written by ${discussionUser} on ${date}</p>
         `;
 
         document.querySelector('.discussionContainer').appendChild(discussionDiv);
@@ -73,104 +62,145 @@ function data() {
 
 async function showDiscussion(heading, subheading, discussionUser, comments, date, id) {
     document.title = heading;
-    comments = JSON.parse(comments);
-    comments = comments.map(c =>
-        typeof c === "string" ? { text: c, author: "Unknown" } : c
-    );
     const currentUser = JSON.parse(localStorage.getItem('discourseUser'));
+
+    let fetchedComments = [];
+    try {
+        const response = await fetch(`${API_BASE_URL}/comments/${id}`);
+        const commentsData = await response.json();
+        fetchedComments = commentsData;
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+    }
+
     document.body.innerHTML = `
         <p>Written by ${discussionUser} on ${date}<p>
         <h1>${heading}</h1>
         <h2>${subheading}</h2>
         <p><strong>Comments:</strong></p>
-        <p>${comments.length} comments</p>
+        <p>${fetchedComments.length} comments</p>
         <ul>
-            ${comments.map((comment, idx) =>
+            ${fetchedComments.map((comment, idx) =>
                 `<li>
                     ${comment.text}
                     <span style="font-size:0.8em;color:gray;"> by ${comment.author}</span>
                     ${currentUser && comment.author === currentUser.username
-                        ? `<button onclick="removeComment(${id}, ${idx})">Remove</button>`
+                        ? `<button onclick="removeComment(${id}, ${comment.commentId})">Remove</button>`
                         : ""}
                 </li>`
             ).join('')}
         </ul>
-        ${user ? `<input id="addComment" placeholder="Add a comment" onkeydown="
+        ${`<input id="addComment" placeholder="Add a comment" onkeydown="
             if (event.key == 'Enter') addComment(${id}, this.value)
-        ">` : `<p>Login to add comments</p>`}
+        ">`}
         <button onclick="start()">Back to discussions</button>
     `;
 }
 
-function addComment(id, comment) {
-    comment = comment.trim();
-    if (!comment) return;
-    let discussions = JSON.parse(localStorage.getItem('discussions'));
-    discussions = migrateComments(discussions);
-    const updatedDiscussion = discussions.find(d => Number(id) === Number(d.id));
+async function addComment(discussionId, commentText) {
+    commentText = commentText.trim();
+    if (!commentText) return;
     const currentUser = JSON.parse(localStorage.getItem('discourseUser'));
-    if (updatedDiscussion && currentUser) {
-        updatedDiscussion.comments.push({ text: comment, author: currentUser.username });
-        localStorage.setItem('discussions', JSON.stringify(discussions));
-        showDiscussion(
-            updatedDiscussion.heading,
-            updatedDiscussion.subheading,
-            updatedDiscussion.user,
-            JSON.stringify(updatedDiscussion.comments),
-            updatedDiscussion.date,
-            updatedDiscussion.id
-        );
+    if (!currentUser) {
+        alert('You must be logged in to add a comment.');
+        return;
     }
-}
 
-function removeComment(id, commentIdx) {
-    let discussions = JSON.parse(localStorage.getItem('discussions'));
-    discussions = migrateComments(discussions);
-    const updatedDiscussion = discussions.find(d => Number(id) === Number(d.id));
-    if (updatedDiscussion) {
-        if (updatedDiscussion.comments[commentIdx].author === user.username) {
-            updatedDiscussion.comments.splice(commentIdx, 1);
-            localStorage.setItem('discussions', JSON.stringify(discussions));
-            showDiscussion(
-                updatedDiscussion.heading,
-                updatedDiscussion.subheading,
-                updatedDiscussion.user,
-                JSON.stringify(updatedDiscussion.comments),
-                updatedDiscussion.date,
-                updatedDiscussion.id
-            );
+    try {
+        const response = await fetch(`${API_BASE_URL}/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                discussionId: discussionId,
+                text: commentText,
+                author: currentUser.username
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+
+        showDiscussionById(discussionId);
+
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        alert('Failed to add comment. Please try again.');
     }
 }
 
-function showDiscussionById(id) {
-    let discussions = JSON.parse(localStorage.getItem('discussions'));
-    discussions = migrateComments(discussions);
-    const discussion = discussions.find(d => Number(d.id) === Number(id));
-    if (discussion) {
-        showDiscussion(
-            discussion.heading,
-            discussion.subheading,
-            discussion.user,
-            JSON.stringify(discussion.comments),
-            discussion.date,
-            discussion.id
-        );
+async function removeComment(discussionId, commentId) {
+    const currentUser = JSON.parse(localStorage.getItem('discourseUser'));
+    if (!currentUser) {
+        alert('You must be logged in to remove a comment.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        showDiscussionById(discussionId);
+
+    } catch (error) {
+        console.error('Error removing comment:', error);
+        alert('Failed to remove comment. Please try again.');
+    }
+}
+
+
+async function showDiscussionById(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/discussions`);
+        const discussions = await response.json();
+        const discussion = discussions.find(d => Number(d.id) === Number(id));
+        if (discussion) {
+            showDiscussion(
+                discussion.heading,
+                discussion.subheading,
+                discussion.user,
+                null,
+                discussion.date,
+                discussion.id
+            );
+        } else {
+            console.error('Discussion not found:', id);
+            alert('Discussion not found.');
+            start();
+        }
+    } catch (error) {
+        console.error('Error fetching discussion by ID:', error);
+        alert('Failed to load discussion. Please try again.');
+        start();
     }
 }
 
 function newDiscussion() {
-    if (!user) {alert('You must be logged in to add a discussion'); return;}
+    if (!user) {
+        alert('You must be logged in to add a discussion');
+        return;
+    }
     document.body.innerHTML = `
         <h1>Add Discussion</h1>
         <br>
         <input id='head' placeholder='Heading'>
         <input id='sub' placeholder='Subheading'>
         <button onclick="addDiscussion()">Add</button>
+        <button onclick="start()">Cancel</button>
     `;
 }
 
-function addDiscussion() {
+async function addDiscussion() {
     const now = new Date();
     const todaysDate = now.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -180,18 +210,37 @@ function addDiscussion() {
     const heading = document.getElementById('head').value;
     const subheading = document.getElementById('sub').value;
 
-    // Retrieve discussions from localStorage
-    let discussions = JSON.parse(localStorage.getItem('discussions')) || []; // Initialize as empty array if none exist
+    if (!heading || !subheading) {
+        alert('Please enter both a heading and a subheading.');
+        return;
+    }
 
-    let newDiscussion = {
+    const newDiscussionData = {
         heading: heading,
         subheading: subheading,
-        user: user.username, // Assuming 'user' is accessible from the global scope or passed
-        comments: [],
+        user: user.username,
         date: todaysDate,
-        id: discussions.length > 0 ? Math.max(...discussions.map(d => d.id)) + 1 : 1 // Generate a unique ID
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/discussions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newDiscussionData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Discussion added:', result.message, 'ID:', result.id);
+        start();
+
+    } catch (error) {
+        console.error('Error adding discussion:', error);
+        alert('Failed to add discussion. Please try again.');
     }
-    discussions.push(newDiscussion);
-    localStorage.setItem('discussions', JSON.stringify(discussions))
-    start();
 }
