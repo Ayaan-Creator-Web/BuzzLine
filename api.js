@@ -1,4 +1,3 @@
-
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -10,12 +9,11 @@ app.use(bodyParser.json());
 const port = process.env.PORT || 3000;
 
 const databaseName = 'sql12788624';
-// MySQL connection
 const db = mysql.createConnection({
     host: 'sql12.freesqldatabase.com',
-    port: 3306, // default MySQL port
+    port: 3306,
     user: 'sql12788624',
-    password: '6BiqxuRBK7', // update if needed
+    password: '6BiqxuRBK7',
     database: databaseName
 });
 
@@ -23,7 +21,6 @@ db.connect(err => {
     if (err) throw err;
     console.log('Connected to MySQL database');
 });
-// Routes
 app.get('/', (req, res) => {
     res.send('API is working');
 });
@@ -35,9 +32,8 @@ app.get('/discussions', (req, res) => {
     });
 });
 
-// Get one student
 app.get('/comments/:discussionId', (req, res) => {
-    db.query('SELECT * FROM items WHERE discussionId = ?', [req.params.discussionId], (err, results) => {
+    db.query('SELECT * FROM comments WHERE discussionId = ?', [req.params.discussionId], (err, results) => {
         if (err) return res.status(500).json(err);
         res.json(results);
     });
@@ -58,9 +54,6 @@ app.delete('/comments/:id', (req, res) => {
     });
 });
 
-// Start server
 app.listen(port, () => {
-    //console.log(`Server is running on http://localhost:${port}`);
     console.log(`Server is running on port ${port}... awaiting MySQL connection`);
 });
-//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
