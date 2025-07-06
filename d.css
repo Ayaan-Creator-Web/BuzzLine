@@ -12,7 +12,7 @@ h1, h2 {
 }
 
 button {
-    background-color: #6c63ff;
+    background-color: #e0dd00;
     color: white;
     border: none;
     padding: 0.6rem 1.2rem;
@@ -25,7 +25,7 @@ button {
 }
 
 button:hover {
-    background-color: #5548d9;
+    background-color: #dbbb01;
 }
 
 .discussionContainer {
