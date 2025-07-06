@@ -55,8 +55,8 @@ app.delete('/comments/:id', (req, res) => {
 });
 
 app.post('/comments', (req, res) => {
-    const { discussionId, text, author } = req.body;
-    db.query('INSERT INTO comments (discussionId, text, author) VALUES (?, ?, ?)', [discussionId, text, author], (err, result) => {
+    const { discussionId, comment, author } = req.body;
+    db.query('INSERT INTO comments (discussionId, comment, author) VALUES (?, ?, ?)', [discussionId, comment, author], (err, result) => {
         if (err) {
             console.error('Error inserting comment:', err);
             return res.status(500).json(err);
