@@ -42,7 +42,7 @@ function data(discussions) {
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;')
                 .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
+                .replace(/>/g, '>').replace(/>/g, '&gt;');
         };
 
         const heading = escapeHtmlAttribute(discussion.heading);
@@ -87,7 +87,7 @@ async function showDiscussion(heading, subheading, discussionUser, comments, dat
         <ul>
             ${fetchedComments.map((comment, idx) =>
                 `<li>
-                    ${comment.text}
+                    ${comment.comment}
                     <span style="font-size:0.8em;color:gray;"> by ${comment.author}</span>
                     ${currentUser && comment.author === currentUser.username
                         ? `<button onclick="removeComment(${id}, ${comment.commentId})">Remove</button>`
@@ -119,7 +119,7 @@ async function addComment(discussionId, commentText) {
             },
             body: JSON.stringify({
                 discussionId: discussionId,
-                text: commentText,
+                comment: commentText,
                 author: currentUser.username
             })
         });
