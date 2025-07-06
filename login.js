@@ -16,7 +16,17 @@ let users = [{
     username: 'Ayaan',
     email: 'ayaan.khalique3@gmail.com',
     password: 'sd',
-    subscription: 'Premium'
+    subscription: 'Admin'
+}, {
+    username: 'Khalique',
+    email: 'khaliquer@gmail.com',
+    password: 'Oyster@22',
+    subscription: 'Free'
+}, {
+    username: 'Discourse Official',
+    email: 'ayaan.khalique3@gmail.com',
+    password: 'sd',
+    subscription: 'Free'
 }];
 /*
 [{
