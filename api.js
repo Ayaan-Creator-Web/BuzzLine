@@ -40,10 +40,10 @@ app.get('/comments/:discussionId', (req, res) => {
 });
 
 app.post('/discussions', (req, res) => {
-    const { id, heading, subheading, user, date } = req.body;
-    db.query('INSERT INTO discussions (id, heading, subheading, user, date) VALUES (?, ?, ?, ?, ?)', [id, heading, subheading, user, date], (err, result) => {
+    const { heading, subheading, user, date } = req.body;
+    db.query('INSERT INTO discussions (heading, subheading, user, date) VALUES (?, ?, ?, ?)', [heading, subheading, user, date], (err, result) => {
         if (err) return res.status(500).json(err);
-        res.json({ message: 'discussion created successfully', id: id });
+        res.json({ message: 'discussion created successfully', id: result.insertId });
     });
 });
 
