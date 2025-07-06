@@ -58,14 +58,14 @@ async function signin() {
         alert('Please Check Email or Password');
         return;
     }
-    localStorage.setItem('discourseUser', JSON.stringify(user));
+    localStorage.setItem('BuzzLineUser', JSON.stringify(user));
 
     document.querySelector('.all').classList.add('hidden');
     document.body.innerHTML += '<div id="load"></div>';
     document.getElementById('load').classList.add('load');
     // Redirect after a short delay if you want
     // await delay(1000);
-    window.location.href = "https://ayaan-creator-web.github.io/Discourse";
+    window.location.href = "https://ayaan-creator-web.github.io/BuzzLine";
 }
 
 function signup(newId) {
