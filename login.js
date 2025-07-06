@@ -23,7 +23,7 @@ let users = [{
     password: 'Oyster@22',
     subscription: 'Free'
 }, {
-    username: 'Discourse Official',
+    username: 'BuzzLine Official',
     email: 'ayaan.khalique3@gmail.com',
     password: 'sd',
     subscription: 'Free'
