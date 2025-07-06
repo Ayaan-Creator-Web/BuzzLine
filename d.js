@@ -220,7 +220,10 @@ async function addDiscussion() {
         return;
     }
 
+    const newId = Date.now().toString();
+
     const newDiscussionData = {
+        id: newId,
         heading: heading,
         subheading: subheading,
         user: user.username,
