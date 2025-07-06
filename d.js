@@ -10,7 +10,7 @@ async function start() {
         if (discussions.length > 0) {
             document.body.innerHTML = `
                 <button onclick="newDiscussion()">Add a discussion</button>
-                <h1>All discussions</h1>
+                <h1>Here are the latest discussions today${user ? ', ' + user.username : ', Guest'}</h1>
                 <div class="discussionContainer"></div>
             `;
             data(discussions);
@@ -85,7 +85,7 @@ async function showDiscussion(heading, subheading, discussionUser, comments, dat
     }
 
     document.body.innerHTML = `
-        <p>Written by ${discussionUser} on ${date}<p>
+        <p>Written by ${findTheAuthor(discussionUser)} on ${date}<p>
         <h1>${heading}</h1>
         <h2>${subheading}</h2>
         <p><strong>Comments:</strong></p>
@@ -94,7 +94,7 @@ async function showDiscussion(heading, subheading, discussionUser, comments, dat
             ${fetchedComments.map((comment, idx) =>
                 `<li>
                     ${comment.comment}
-                    <span style="font-size:0.8em;color:gray;"> by ${comment.author}</span>
+                    <span style="font-size:0.8em;color:gray;"> by ${findTheAuthor(comment.author)}</span>
                     ${currentUser && comment.author === currentUser.username
                         ? `<button onclick="removeComment(${id}, ${comment.commentId})">Remove</button>`
                         : ""}
