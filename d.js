@@ -1,8 +1,8 @@
-const user = JSON.parse(localStorage.getItem('discourseUser'));
+const user = JSON.parse(localStorage.getItem('BuzzLineUser'));
 const API_BASE_URL = 'https://discourse-lasp.onrender.com';
 
 async function start() {
-    document.title = 'Discourse';
+    document.title = 'BuzzLine';
     try {
         const response = await fetch(`${API_BASE_URL}/discussions`);
         const discussions = await response.json();
@@ -68,7 +68,7 @@ function findTheAuthor(authorName) {
 
 async function showDiscussion(heading, subheading, discussionUser, comments, date, id) {
     document.title = heading;
-    const currentUser = JSON.parse(localStorage.getItem('discourseUser'));
+    const currentUser = JSON.parse(localStorage.getItem('BuzzLineUser'));
 
     let fetchedComments = [];
     try {
@@ -111,7 +111,7 @@ async function showDiscussion(heading, subheading, discussionUser, comments, dat
 async function addComment(discussionId, commentText) {
     commentText = commentText.trim();
     if (!commentText) return;
-    const currentUser = JSON.parse(localStorage.getItem('discourseUser'));
+    const currentUser = JSON.parse(localStorage.getItem('BuzzLineUser'));
     if (!currentUser) {
         alert('You must be logged in to add a comment.');
         return;
@@ -143,7 +143,7 @@ async function addComment(discussionId, commentText) {
 }
 
 async function removeComment(discussionId, commentId) {
-    const currentUser = JSON.parse(localStorage.getItem('discourseUser'));
+    const currentUser = JSON.parse(localStorage.getItem('BuzzLineUser'));
     if (!currentUser) {
         alert('You must be logged in to remove a comment.');
         return;
