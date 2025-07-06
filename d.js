@@ -68,7 +68,12 @@ async function showDiscussion(heading, subheading, discussionUser, comments, dat
     try {
         const response = await fetch(`${API_BASE_URL}/comments/${id}`);
         const commentsData = await response.json();
-        fetchedComments = commentsData;
+        if (Array.isArray(commentsData)) {
+            fetchedComments = commentsData;
+        } else {
+            console.warn('Comments data fetched was not an array, defaulting to empty:', commentsData);
+            fetchedComments = [];
+        }
     } catch (error) {
         console.error('Error fetching comments:', error);
     }
