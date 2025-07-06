@@ -53,11 +53,17 @@ function data(discussions) {
 
         discussionDiv.innerHTML = `
             <h2 style="cursor: pointer;" onclick="showDiscussionById(${id})">${heading}</h2>
-            <p>Written by ${discussionUser} on ${date}</p>
+            <p>Written by ${findTheAuthor(discussionUser)} on ${date}</p>
         `;
 
         document.querySelector('.discussionContainer').appendChild(discussionDiv);
     });
+}
+
+function findTheAuthor(authorName) {
+    if (!user) return authorName;
+    if (authorName == user.username) return 'You'
+    else return authorName;
 }
 
 async function showDiscussion(heading, subheading, discussionUser, comments, date, id) {
