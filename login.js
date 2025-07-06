@@ -55,7 +55,7 @@ async function signin() {
     document.getElementById('load').classList.add('load');
     // Redirect after a short delay if you want
     // await delay(1000);
-    window.location.href = "http://127.0.0.1:5500/Discourse/app/d.html";
+    window.location.href = "https://ayaan-creator-web.github.io/Discourse";
 }
 
 function signup(newId) {
