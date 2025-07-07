@@ -16,7 +16,7 @@ let users = [{
     username: 'Ayaan',
     email: 'ayaan.khalique3@gmail.com',
     password: 'sd',
-    subscription: 'Admin'
+    subscription: 'Premium'
 }, {
     username: 'Khalique',
     email: 'khaliquer@gmail.com',
@@ -26,6 +26,11 @@ let users = [{
     username: 'BuzzLine Official',
     email: 'ayaan.khalique3@gmail.com',
     password: 'sd',
+    subscription: 'Admin'
+}, {
+    username: 'Iron Woman',
+    email: 'nicezara@gmail.com',
+    password: 'apple',
     subscription: 'Free'
 }];
 /*
