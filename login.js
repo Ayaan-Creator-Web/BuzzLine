@@ -32,6 +32,11 @@ let users = [{
     email: 'nicezara@gmail.com',
     password: 'apple',
     subscription: 'Free'
+}, {
+    username: 'Babu',
+    email: 'muhammadbashir@gmail.com',
+    password: 'sd',
+    subscription: 'Free'
 }];
 /*
 [{
