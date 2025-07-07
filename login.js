@@ -35,7 +35,7 @@ let users = [{
 }, {
     username: 'Babu',
     email: 'muhammadbashir@gmail.com',
-    password: 'sd',
+    password: 'hi',
     subscription: 'Free'
 }];
 /*
